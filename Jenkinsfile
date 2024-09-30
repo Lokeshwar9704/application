@@ -1,49 +1,39 @@
 pipeline {
     agent any
-
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Lokeshwar9704/application.git'
+                // Checkout code from Git
+                git url: 'https://github.com/Lokeshwar9704/application.git' 
             }
         }
-        
-        stage('Install Dependencies') {
+        stage('Setup Environment') {
             steps {
-                script {
-                    if (fileExists('package.json')) {
-                        sh 'npm install'
-                    }
-                }
+                echo "Creating virtual environment..."
+                bat 'C:\\Users\\LOKE\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -m venv venv'  // Use double backslashes
+                echo "Activating virtual environment..."
+                bat 'call venv\\Scripts\\activate.bat'  // This line is fine as is
+                echo "Installing dependencies..."
+                bat 'C:\\Users\\LOKE\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\pip.exe install -r requirements.txt'  // Use double backslashes
             }
         }
-
         stage('Run Tests') {
             steps {
-                script {
-                    if (fileExists('package.json')) {
-                        sh 'npm test'
-                    }
-                }
+                echo "Running tests..."
+                // Add your testing commands here, for example:
+                // bat 'pytest'
             }
         }
-        
-        stage('Build') {
-            steps {
-                sh 'npm run build'
-            }
-        }
-
         stage('Deploy') {
             steps {
-                sh 'cp -r ./build/* /var/www/html'
-                sh 'sudo systemctl restart nginx'
+                echo "Deploying application..."
+                // Add your deployment commands here
             }
         }
     }
-
     post {
         always {
+            echo "Cleaning up workspace..."
             cleanWs()
         }
     }
